@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>AESA - Portal de Gestión</title>
+  <?!= HtmlService.createHtmlOutputFromFile('Styles').getContent(); ?>
+</head>
+
+<body class="tarjeta-web bg-white text-aesa-text font-display m-0 p-0 min-h-screen flex flex-col">
+
+  <div class="oscuridad"></div>
+  <div class="linterna"></div>
+
+  <!-- Loading Screen -->
+  <div id="loadingOverlay"
+    class="fixed inset-0 bg-aesa-dark z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="loader ease-linear rounded-full border-4 border-t-4 border-aesa-gray h-12 w-12 mb-4"></div>
+    <h2 class="text-center text-white text-xl font-semibold">Cargando Portal...</h2>
+    <p id="loadingStatusText" class="w-1/3 text-center text-gray-300 text-sm mt-2">Iniciando aplicación...</p>
+  </div>
+
+
+
+  <!-- Botón flotante de Reporte de Comunicación (nuevo, encima del de registro) -->
+
+  <div class="relative">
+    <!-- Botón flotante de Otros (nuevo, encima del de intervención) -->
+    <a id="otrosFabBtn" href="javascript:void(0);"
+      class="fixed bottom-44 left-6 z-50 bg-blue-600 hover:bg-blue-800 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center transition-all duration-300 anima-search"
+      style="display:none;">
+      <span class="material-icons text-3xl">info</span>
+    </a>
+    <!-- Tooltip flotante para Otros -->
+    <div id="tooltipOtros" class="fixed bottom-[248px] left-[92px] z-[60] px-3 py-1 rounded-lg shadow-lg bg-white text-xs text-gray-800 font-semibold opacity-0 pointer-events-none transition-opacity duration-300 select-none" style="min-width: 80px; text-align:center;">
+      Otros
+    </div>
+    <a id="reporteComFabBtn" href="javascript:void(0);"
+      class="fixed bottom-24 left-6 z-50 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center transition-all duration-300 anima-search"
+      style="display:none;">
+      <span class="material-icons text-3xl">campaign</span>
+    </a>
+    <!-- Tooltip flotante para Intervenciones -->
+    <div id="tooltipIntervenciones" class="fixed bottom-[128px] left-[92px] z-[60] px-3 py-1 rounded-lg shadow-lg bg-white text-xs text-gray-800 font-semibold opacity-0 pointer-events-none transition-opacity duration-300 select-none"
+      style="min-width: 120px; text-align:center;">
+      Intervenciones
+    </div>
+  </div>
+
+  <!-- Botón flotante de Registro (ahora abajo a la izquierda, posición del botón rojo) -->
+
+  <div class="relative">
+    <a id="registroFabBtn" href="javascript:void(0);"
+      class="fixed bottom-6 left-6 z-50 bg-blue-600 hover:bg-blue-800 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center transition-all duration-300 anima-search"
+      style="display:none;">
+      <span class="material-icons text-3xl">assignment</span>
+    </a>
+    <!-- Tooltip flotante para Registro -->
+    <div id="tooltipRegistro" class="fixed bottom-[56px] left-[92px] z-[60] px-3 py-1 rounded-lg shadow-lg bg-white text-xs text-gray-800 font-semibold opacity-0 pointer-events-none transition-opacity duration-300 select-none"
+      style="min-width: 150px; text-align:center;">
+      Registra tus herramientas
+    </div>
+  </div>
+
+  <!-- Modal flotante de Registro -->
+  <div id="registroModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40 hidden">
+    <div class="relative bg-white rounded-2xl shadow-lg w-[90vw] max-w-md h-[92vh] flex flex-col overflow-hidden animate__animated animate__fadeInUp" style="margin-bottom:0; margin-top:32px;">
+      <!-- Barra superior con flecha de retroceso -->
+      <div class="flex items-center p-3 border-b border-gray-200 bg-blue-600">
+        <button id="registroBackBtn" class="text-white mr-2">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <span class="text-white font-bold text-lg">Registro</span>
+      </div>
+      <!-- Contenido del registro -->
+      <iframe id="registroIframe" src="" class="flex-1 w-full h-full border-0" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+  </div>
+
+  <header
+    class="bg-white text-aesa-dark shadow-sm border-b-4 border-aesa-blue sticky top-0 z-50 transition-shadow duration-300"
+    id="mainHeader">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex flex-row items-center justify-between gap-4">
+
+      <!-- Logo Container -->
+      <div class="flex items-center gap-2 md:gap-4 flex-shrink min-w-0 cursor-pointer group select-none"
+        onclick="showDashboard()">
+        <img src="https://www.aesa.com.pe/wp-content/uploads/2026/02/Logoaesa-05-e1770746213909.png" alt="AESA"
+          class="h-6 sm:h-8 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+
+        <div
+          class="w-px h-6 sm:h-8 md:h-12 bg-gray-200 group-hover:bg-aesa-blue/50 transition-colors duration-300 shrink-0">
+        </div>
+
+        <div class="flex flex-col justify-center min-w-0">
+          <span
+            class="text-[8px] sm:text-[10px] md:text-xs font-semibold text-gray-400 uppercase tracking-widest leading-tight group-hover:text-aesa-blue transition-colors duration-300 truncate">Portal
+            de</span>
+          <span
+            class="text-[10px] sm:text-xs md:text-xl font-bold font-condensed text-aesa-dark leading-none uppercase tracking-wide group-hover:text-black transition-colors duration-300 truncate">Gestión
+            Documental</span>
+          <span class="text-[8px] sm:text-[9px] font-bold text-[#2b3a62] leading-tight block mt-0.5">By A.T</span>
+        </div>
+      </div>
+
+
+      <!-- Header Actions -->
+      <div class="flex items-center justify-end flex-shrink-0 gap-1 sm:gap-2 md:gap-4 lg:gap-6">
+        <!-- Botón de Emergencia (rojo) a la izquierda del botón de lupa -->
+        <button onclick="openEmergencyModal()" id="emergencyFloatingBtnHeader"
+          class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold p-2 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center border-2 border-red-400/60 group mr-1">
+          <span class="material-icons text-xl">warning</span>
+        </button>
+        <button onclick="openSearch()"
+          class="bg-[#2b3a62] border-2 border-white text-white p-1.5 sm:p-2 rounded-full transition-all duration-300 flex items-center justify-center flex-shrink-0 h-[32px] w-[32px] sm:h-[36px] sm:w-[36px] md:h-auto md:w-auto shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 anima-search group">
+          <span
+            class="material-icons text-sm sm:text-base md:text-lg transition-transform group-hover:rotate-12">search</span>
+        </button>
+      </div>
+
+
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+
+    <!-- Hero Section (Comunicados - Carousel) - Always Visible -->
+    <section id="heroSection"
+      class="hidden relative rounded-xl overflow-hidden shadow-xl bg-aesa-dark group h-48 md:h-64 border border-white/80">
+      <!-- Carousel items Injected via JS -->
+      <div id="carouselContainer" class="w-full h-full relative"></div>
+      <!-- Carousel Indicators -->
+      <div id="carouselIndicators" class="absolute bottom-4 right-4 flex gap-2 z-30"></div>
+    </section>
+
+    <!-- VIEW: Dashboard (Category Buttons) -->
+    <div id="dashboardView" class="hidden">
+      <div class="flex items-end gap-2 mb-4">
+        <h2
+          class="inline-flex items-center text-xl font-bold font-condensed text-white uppercase tracking-wide border-l-4 border-aesa-blue pl-3 pr-3 py-1 rounded-r-md bg-black/45 backdrop-blur-[1px] shadow-md">
+          Explorar por Categorías
+        </h2>
+      </div>
+      <div id="categoryButtonsGrid" class="grid grid-cols-2 gap-4 md:gap-6">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- VIEW: Detail (Cards List) -->
+    <div id="detailView" class="hidden">
+      <!-- Navigation Breadcrumb / Back -->
+      <div class="flex items-center gap-4 mb-6">
+        <button onclick="showDashboard()"
+          class="flex items-center gap-1 text-gray-500 hover:text-aesa-blue transition-colors font-medium text-sm bg-white px-3 py-1.5 rounded-md border border-gray-300 hover:border-aesa-blue shadow-sm">
+          <span class="material-icons text-sm">arrow_back</span>
+          Volver
+        </button>
+        <h2 id="currentCategoryTitle"
+          class="inline-flex items-center text-2xl font-bold font-condensed text-white uppercase tracking-wide border-l-4 border-aesa-blue pl-3 pr-3 py-1 rounded-r-md bg-black/45 backdrop-blur-[1px] shadow-md">
+          <!-- Updated via JS -->
+        </h2>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="cardsGrid" class="grid grid-cols-2 gap-4">
+        <!-- Injected via JS -->
+      </div>
+
+      <!-- Botón PAC externo (solo PAC) -->
+      <div id="pacExternalBtnContainer" style="display:none;margin-top:8px;margin-bottom:8px;">
+        <button id="openPacExternalBtn" type="button"
+          style="display:flex;align-items:center;gap:8px;background:#003366;color:#fff;padding:8px 18px;border-radius:8px;font-weight:600;font-size:13px;box-shadow:0 2px 8px #00336622;outline:none;border:none;cursor:pointer;"
+        >
+          <span class="material-icons" style="font-size:18px;">public</span>
+          Ver Examenes Pendientes
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20">
+      <span class="material-icons text-6xl text-gray-300 mb-4 text-aesa-blue">folder_off</span>
+      <h3 class="text-xl font-bold text-gray-600">No se encontraron documentos</h3>
+      <p class="text-gray-500">Intenta con otros términos de búsqueda.</p>
+      <button onclick="showDashboard()" class="mt-4 text-aesa-blue font-bold text-sm hover:underline">Ver todas las
+        categorías</button>
+    </div>
+
+  </main>
+
+  <!-- Modal -->
+  <div id="modal"
+    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] hidden transition-opacity duration-300 backdrop-blur-sm">
+    <div
+      class="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 overflow-visible relative transition-opacity duration-300"
+      id="modalContainer">
+      <!-- Modal Header -->
+      <div class="bg-aesa-blue px-6 py-4 flex items-center gap-4">
+        <h3 id="modalTitle" class="text-white text-xl font-bold font-condensed flex-grow leading-tight">Título del
+          Documento</h3>
+        <button id="closeModal"
+          class="text-white hover:bg-black/20 rounded-full p-1 transition-colors flex items-center justify-center shrink-0">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <!-- Modal Content Wrapper -->
+      <div class="flex flex-col max-h-[85vh]">
+
+
+
+        <!-- Scrollable Content -->
+        <div class="overflow-y-auto">
+          <!-- Contenedor de Imagen con Botón Zoom y Navegación -->
+          <div class="relative group hidden" id="modalImageContainer">
+            <img id="modalImage" src="" alt="Imagen detalle" class="w-full h-48 sm:h-64 object-cover">
+            <!-- Botón de Zoom con color institucional #2b3a62 -->
+            <button onclick="openZoomModal()"
+              class="absolute bottom-3 right-3 bg-[#2b3a62] hover:bg-blue-900 text-white p-2 rounded-full transition-all duration-300 shadow-xl flex items-center justify-center transform hover:scale-110 z-10 opacity-90 hover:opacity-100">
+              <span class="material-icons">zoom_in</span>
+            </button>
+            <!-- Navigation Arrows -->
+            <button onclick="navigateModal(-1)"
+              class="modal-prev-btn absolute left-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10">
+              <span class="material-icons">chevron_left</span>
+            </button>
+            <button onclick="navigateModal(1)"
+              class="modal-next-btn absolute right-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10">
+              <span class="material-icons">chevron_right</span>
+            </button>
+          </div>
+
+          <!-- Contenedores para Media Incrustada (Iframes & Videos) -->
+          <div class="relative hidden bg-gray-100 border-b border-gray-200" id="modalEmbedContainer">
+            <div class="relative w-full" style="height: 60vh; min-height: 350px;">
+              <iframe id="modalIframe" src="" class="absolute inset-0 w-full h-full border-0" allowfullscreen
+                allow="autoplay; fullscreen"></iframe>
+              <!-- Navigation Arrows -->
+              <button onclick="navigateModal(-1)"
+                class="modal-prev-btn absolute left-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10 pointer-events-auto">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <button onclick="navigateModal(1)"
+                class="modal-next-btn absolute right-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10 pointer-events-auto">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          </div>
+          <div class="relative hidden bg-black" id="modalVideoContainer">
+            <div class="relative w-full" style="height: 60vh; min-height: 350px;">
+              <video id="modalVideo" controls class="absolute inset-0 w-full h-full object-contain">
+                <source src="" type="video/mp4">
+                Tu navegador no soporta videos HTML5.
+              </video>
+              <!-- Navigation Arrows -->
+              <button onclick="navigateModal(-1)"
+                class="modal-prev-btn absolute left-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10 pointer-events-auto">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              <button onclick="navigateModal(1)"
+                class="modal-next-btn absolute right-2 top-1/2 -translate-y-1/2 bg-[#2b3a62] hover:bg-blue-900 text-white p-1 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-all transform hover:scale-110 flex items-center justify-center z-10 pointer-events-auto">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Top row: CTA button (left) + Date (right) -->
+            <div class="flex items-center justify-between gap-3">
+              <a id="modalLink" href="#" target="_blank"
+                class="hidden items-center gap-2 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider text-white bg-aesa-blue hover:bg-blue-900 shadow-md hover:shadow-xl transition-all duration-300 cta-click shrink-0">
+                <span class="material-icons text-sm">ads_click</span>
+                CLICK AQUI
+              </a>
+              <div class="flex items-center gap-1.5 text-gray-400 text-xs font-medium uppercase tracking-wider ml-auto">
+                <span class="material-icons text-sm">calendar_today</span>
+                <span id="modalDate">...</span>
+              </div>
+            </div>
+
+            <!-- Short Description -->
+            <div id="modalShortDescContainer"
+              class="hidden bg-blue-50 border-l-4 border-[#2b3a62] rounded-r-lg px-4 py-3">
+              <p id="modalShortDesc" class="text-sm text-gray-700 leading-relaxed italic"></p>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <h4 class="text-sm font-bold text-aesa-dark uppercase tracking-wide mb-2">Descripción</h4>
+              <div class="max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                <div id="modalDescription" class="text-gray-600 text-sm leading-relaxed whitespace-pre-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- Search Overlay -->
+  <div id="searchOverlay"
+    class="fixed inset-0 bg-aesa-dark/95 z-[70] hidden transition-opacity duration-300 backdrop-blur-sm flex flex-col pt-6 px-4">
+
+    <div class="w-full max-w-4xl mx-auto flex flex-col h-full">
+      <!-- Header: Search Input & Close -->
+      <div class="flex items-center gap-4 mb-8 shrink-0">
+        <div class="relative flex-grow">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-4">
+            <span class="material-icons text-gray-400 text-3xl">search</span>
+          </span>
+          <input type="text" id="searchInput" placeholder="Buscar documento..."
+            class="w-full pl-14 pr-6 py-4 bg-white/10 border-2 border-white/20 text-white placeholder-gray-400 rounded-2xl focus:outline-none focus:border-aesa-blue focus:bg-white/20 text-xl transition-all shadow-2xl backdrop-blur-md">
+        </div>
+        <button onclick="closeSearch()"
+          class="text-white/70 hover:text-white rounded-full p-2 transition-colors shrink-0 bg-white/10 hover:bg-white/20">
+          <span class="material-icons text-3xl">close</span>
+        </button>
+      </div>
+
+      <!-- Inline Search Results -->
+      <div id="searchResultsOverlay"
+        class="flex-grow overflow-y-auto custom-scrollbar pb-10 grid grid-cols-2 gap-4 content-start">
+        <!-- Results injected here -->
+        <div class="col-span-full text-center text-gray-500 mt-20">
+          <span class="material-icons text-6xl mb-4 opacity-50 text-aesa-blue">manage_search</span>
+          <p class="text-xl">Escribe para comenzar a buscar...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón Flotante de Feedback -->
+  <button onclick="openFeedbackModal()"
+    class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-800 text-white p-4 rounded-full shadow-2xl z-50 flex items-center gap-2 transform hover:scale-105 transition-all duration-300 group anima-search">
+    <span class="material-icons">feedback</span>
+    <span
+      class="font-bold text-sm hidden group-hover:inline-block max-w-0 group-hover:max-w-xs transition-all duration-500 overflow-hidden whitespace-nowrap">Mejoras</span>
+  </button>
+
+  <!-- Modal de Feedback -->
+  <div id="feedbackModal"
+    class="fixed inset-0 bg-black/60 z-[80] hidden items-center justify-center p-4 transition-opacity duration-300 backdrop-blur-sm flex opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl transform transition-all scale-95"
+      id="feedbackContainer">
+      <!-- Encabezado -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-[#2b3a62] rounded-t-2xl text-white">
+        <div class="flex items-center gap-3">
+          <span class="material-icons text-2xl">lightbulb</span>
+          <h3 class="text-xl font-bold tracking-wide">Buzón de Mejoras</h3>
+        </div>
+        <button onclick="closeFeedbackModal()"
+          class="text-white/70 hover:text-white rounded-full p-1 transition-colors bg-white/10 hover:bg-white/20">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="p-6">
+        <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+          ¡Tu opinión es muy importante! Ayúdanos a mejorar la plataforma enviando tus sugerencias, reportando algún
+          problema o compartiendo ideas nuevas.
+        </p>
+        <textarea id="feedbackText" rows="4" placeholder="Escribe tu mensaje aquí..."
+          class="w-full p-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#2b3a62] focus:ring-4 focus:ring-blue-900/10 transition-all text-sm resize-none custom-scrollbar"></textarea>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="p-6 pt-2 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3">
+        <button onclick="closeFeedbackModal()"
+          class="px-5 py-2.5 rounded-lg text-gray-600 font-bold text-sm hover:bg-gray-200 transition-colors">
+          Cancelar
+        </button>
+        <button id="submitFeedbackBtn" onclick="submitFeedback()"
+          class="px-5 py-2.5 rounded-lg bg-[#2b3a62] hover:bg-blue-900 text-white font-bold text-sm shadow-md flex items-center gap-2 transition-all">
+          <span class="material-icons text-sm" id="feedbackIconBtn">send</span>
+          <span id="feedbackTextBtn">Enviar Ideal</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Modal de Zoom de Imagen -->
+  <div id="zoomModal"
+    class="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-[90] hidden transition-all duration-300 backdrop-blur-md opacity-0 p-4">
+    <button onclick="closeZoomModal()"
+      class="absolute top-4 right-4 text-white/70 hover:text-white bg-black/50 hover:bg-black p-2 rounded-full transition-all z-50 flex items-center justify-center flex-shrink-0 cursor-pointer shadow-lg hover:scale-110 border border-white/20">
+      <span class="material-icons text-3xl">close</span>
+    </button>
+    <div class="relative w-full h-full max-w-7xl mx-auto flex flex-col justify-center items-center">
+      <img id="zoomModalImage" src="" alt="Imagen Ampliada"
+        class="max-w-full max-h-full object-contain rounded-lg shadow-2xl scale-95" style="cursor: zoom-out;"
+        onclick="closeZoomModal()">
+    </div>
+  </div>
+
+  <!-- Modal de Emergencia -->
+  <div id="emergencyModal"
+    class="fixed inset-0 bg-black/90 flex flex-col items-center justify-center z-[80] hidden transition-all duration-300 backdrop-blur-md opacity-0 p-2 md:p-6">
+    <div class="relative w-full h-full max-w-6xl mx-auto flex flex-col justify-center items-center">
+      <button onclick="closeEmergencyModal()"
+        class="absolute top-0 right-0 md:-top-2 md:-right-2 text-white/70 hover:text-red-500 bg-black/50 hover:bg-black p-2 rounded-full transition-all z-50 flex items-center justify-center shrink-0 cursor-pointer shadow-lg hover:outline hover:outline-2 hover:outline-red-500">
+        <span class="material-icons text-3xl md:text-4xl">close</span>
+      </button>
+      <img id="emergencyImage" src="" alt="Flujograma de Emergencia"
+        class="max-w-full max-h-full object-contain rounded-xl shadow-2xl border-2 md:border-4 border-red-600/50 block">
+    </div>
+  </div>
+
+  <script>
+    // --- BOTÓN FLOTANTE DE REPORTE DE COMUNICACIÓN ---
+    const REPORTE_COM_LINK = "https://docs.google.com/forms/d/e/1FAIpQLSc1p4NO_WJTLZGttznR3ur4emKZK8OQS8G428ZZdezsCRvuLw/viewform";
+    document.addEventListener('DOMContentLoaded', () => {
+      const reporteComBtn = document.getElementById('reporteComFabBtn');
+      const reporteComModal = document.getElementById('reporteComModal');
+      const reporteComIframe = document.getElementById('reporteComIframe');
+      const reporteComBackBtn = document.getElementById('reporteComBackBtn');
+      if (reporteComBtn && REPORTE_COM_LINK && REPORTE_COM_LINK.trim() !== "") {
+        reporteComBtn.style.display = "flex";
+      }
+      if (reporteComBtn) reporteComBtn.addEventListener('click', () => {
+        if (reporteComIframe) reporteComIframe.src = REPORTE_COM_LINK;
+        if (reporteComModal) reporteComModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      });
+      if (reporteComBackBtn) reporteComBackBtn.addEventListener('click', () => {
+        if (reporteComModal) reporteComModal.classList.add('hidden');
+        if (reporteComIframe) reporteComIframe.src = "";
+        document.body.style.overflow = '';
+      });
+      if (reporteComModal) reporteComModal.addEventListener('click', (e) => {
+        if (e.target === reporteComModal) {
+          reporteComModal.classList.add('hidden');
+          if (reporteComIframe) reporteComIframe.src = "";
+          document.body.style.overflow = '';
+        }
+      });
+    });
+  </script>
+  <!-- Modal flotante de Reporte de Comunicación -->
+  <div id="reporteComModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40 hidden">
+    <div class="relative bg-white rounded-2xl shadow-lg w-[90vw] max-w-md h-[92vh] flex flex-col overflow-hidden animate__animated animate__fadeInUp" style="margin-bottom:0; margin-top:32px;">
+      <div class="flex items-center p-3 border-b border-gray-200 bg-red-600">
+        <button id="reporteComBackBtn" class="text-white mr-2">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <span class="text-white font-bold text-lg">Reporta tu intervención</span>
+      </div>
+      <iframe id="reporteComIframe" src="" class="flex-1 w-full h-full border-0" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+  </div>
+
+
+  <script>
+    // Tooltips amigables para los botones flotantes
+    document.addEventListener('DOMContentLoaded', function () {
+      // (Declaraciones movidas más abajo para evitar duplicados)
+      const tooltipOtros = document.getElementById('tooltipOtros');
+      const otrosFabBtn = document.getElementById('otrosFabBtn');
+        // Mostrar/Ocultar botón y tooltip Otros usando variable centralizada de JavaScript.html
+        if (otrosFabBtn && tooltipOtros) {
+          if (typeof BOTON_OTROS_LINK !== 'undefined' && BOTON_OTROS_LINK && BOTON_OTROS_LINK.trim() !== "") {
+            otrosFabBtn.style.display = "flex";
+            tooltipOtros.style.display = "block";
+            otrosFabBtn.addEventListener('click', function () {
+              // Abrir en modal flotante reutilizando el modal PAC externo
+              const pacModal = document.getElementById('pacExternalModal');
+              const pacIframe = pacModal ? pacModal.querySelector('iframe') : null;
+              if (pacModal && pacIframe) {
+                pacIframe.src = BOTON_OTROS_LINK;
+                pacModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+              }
+            });
+          } else {
+            otrosFabBtn.style.display = "none";
+            tooltipOtros.style.display = "none";
+          }
+        }
+
+        // --- Reporte Comunicación ---
+        const reporteComBtn = document.getElementById('reporteComFabBtn');
+        const tooltipInterv2 = document.getElementById('tooltipIntervenciones');
+        if (reporteComBtn && tooltipInterv2) {
+          if (typeof BOTON_REPORTE_LINK !== 'undefined' && BOTON_REPORTE_LINK && BOTON_REPORTE_LINK.trim() !== "") {
+            reporteComBtn.style.display = "flex";
+            tooltipInterv2.style.display = "block";
+          } else {
+            reporteComBtn.style.display = "none";
+            tooltipInterv2.style.display = "none";
+          }
+        }
+
+        // --- Registro ---
+        const registroBtn = document.getElementById('registroFabBtn');
+        const tooltipRegistro2 = document.getElementById('tooltipRegistro');
+        if (registroBtn && tooltipRegistro2) {
+          if (typeof BOTON_REGISTRO_LINK !== 'undefined' && BOTON_REGISTRO_LINK && BOTON_REGISTRO_LINK.trim() !== "") {
+            registroBtn.style.display = "flex";
+            tooltipRegistro2.style.display = "block";
+          } else {
+            registroBtn.style.display = "none";
+            tooltipRegistro2.style.display = "none";
+          }
+        }
+
+        // Tooltips: Ocultar después de 15s si están visibles
+        setTimeout(() => {
+          if (tooltipInterv2 && tooltipInterv2.style.display !== "none") {
+            tooltipInterv2.style.opacity = '0';
+            tooltipInterv2.style.pointerEvents = 'none';
+          }
+          if (tooltipRegistro2 && tooltipRegistro2.style.display !== "none") {
+            tooltipRegistro2.style.opacity = '0';
+            tooltipRegistro2.style.pointerEvents = 'none';
+          }
+          if (tooltipOtros && tooltipOtros.style.display !== "none") {
+            tooltipOtros.style.opacity = '0';
+            tooltipOtros.style.pointerEvents = 'none';
+          }
+        }, 15000);
+        // Mostrar inmediatamente si corresponde
+        setTimeout(() => {
+          if (tooltipInterv2 && tooltipInterv2.style.display !== "none") {
+            tooltipInterv2.style.opacity = '1';
+            tooltipInterv2.style.pointerEvents = 'auto';
+          }
+          if (tooltipRegistro2 && tooltipRegistro2.style.display !== "none") {
+            tooltipRegistro2.style.opacity = '1';
+            tooltipRegistro2.style.pointerEvents = 'auto';
+          }
+          if (tooltipOtros && tooltipOtros.style.display !== "none") {
+            tooltipOtros.style.opacity = '1';
+            tooltipOtros.style.pointerEvents = 'auto';
+          }
+        }, 100);
+    });
+  </script>
+
+  <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
+
+
+  <!-- Modal flotante genérico para PAC (Exámenes, Presentaciones, Videos) -->
+  <div id="pacIframeModal" class="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 hidden opacity-0 transition-opacity duration-300">
+    <div class="relative bg-white rounded-2xl shadow-2xl w-[95vw] h-[90vh] flex flex-col overflow-visible transition-opacity duration-300" id="pacIframeContainer">
+      <!-- Barra superior -->
+      <div class="flex items-center p-3 border-b border-gray-200 bg-aesa-blue">
+        <button id="pacIframeCloseBtn" class="text-white flex items-center gap-1 hover:bg-white/10 px-2 py-1 rounded transition-colors">
+          <span class="material-icons">arrow_back</span>
+          <span class="font-bold">Volver</span>
+        </button>
+        <div class="flex-1 text-center pr-10">
+          <span id="pacIframeTitle" class="text-white font-bold text-lg truncate block px-4">PAC - Contenido</span>
+        </div>
+      </div>
+      <!-- Loader para el iframe -->
+      <div id="pacIframeLoader" class="absolute inset-0 top-14 flex items-center justify-center bg-white z-10">
+        <div class="loader ease-linear rounded-full border-4 border-t-4 border-aesa-blue h-10 w-10"></div>
+      </div>
+      <!-- Iframe para documentos -->
+      <iframe id="pacIframe" src="" class="flex-1 w-full h-full border-0" allowfullscreen allow="autoplay; fullscreen"></iframe>
+      <!-- Video player para archivos MP4 directos -->
+      <div id="pacVideoContainer" class="flex-1 w-full h-full bg-black hidden flex-col items-center justify-center">
+        <video id="pacVideoPlayer" controls class="w-full h-full" style="object-fit: contain;" controlsList="nodownload">
+          <source src="" type="video/mp4">
+          Tu navegador no soporta la reproducción de videos.
+        </video>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal flotante PAC externo original (se mantiene por compatibilidad si se usa) -->
+  <div id="pacExternalModal" style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="position:relative;width:80vw;height:80vh;background:#fff;border-radius:18px;box-shadow:0 8px 32px #0008;overflow:hidden;display:flex;flex-direction:column;">
+      <button id="closePacExternalModal" style="position:absolute;top:12px;right:12px;z-index:10;background:#003366;color:#fff;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px #00336622;cursor:pointer;">
+        <span class="material-icons" style="font-size:22px;">arrow_back</span>
+      </button>
+      <iframe src="https://pac-cerro-ziyx.vercel.app/" style="flex:1;width:100%;height:100%;border:none;" allowfullscreen allow="autoplay; fullscreen"></iframe>
+    </div>
+  </div>
+
+</body>
+
+</html>

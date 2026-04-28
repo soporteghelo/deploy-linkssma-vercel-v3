@@ -1,0 +1,304 @@
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'aesa-blue': '#003366',
+          'aesa-red': '#E30613',
+          'aesa-dark': '#1a1a1a',
+          'aesa-gray': '#f4f4f4',
+          'aesa-text': '#333333',
+          'aesa-accent': '#2b3a62',
+        },
+        fontFamily: {
+          'display': ['Inter', 'sans-serif'],
+          'condensed': ['Roboto Condensed', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .tarjeta-web {
+    position: relative;
+    --x: 50%;
+    --y: 50%;
+  }
+
+  /* Capa de oscuridad total (cuando el mouse NO está encima) */
+  .oscuridad {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    z-index: 55;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    opacity: 0.05;
+  }
+
+  /* Capa que crea el efecto de linterna */
+  .linterna {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 56;
+    pointer-events: none;
+    opacity: 0.12;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(circle 180px at var(--x, 50%) var(--y, 50%),
+        rgba(255, 220, 100, 0.08) 0%,
+        rgba(0, 0, 0, 0.08) 62%,
+        rgba(0, 0, 0, 0.16) 100%);
+  }
+
+  .tarjeta-web:hover .oscuridad,
+  .tarjeta-web.is-touch-active .oscuridad {
+    opacity: 0.02;
+  }
+
+  .tarjeta-web:hover .linterna,
+  .tarjeta-web.is-touch-active .linterna {
+    opacity: 0.18;
+  }
+
+  body {
+    background-color: #ffffff;
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.50), rgba(0, 0, 0, 0.50)),
+      url('https://lh3.googleusercontent.com/d/1QL5WyAX92EXZ4vXtR9J9Ux1JYUp7ELBL');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    background-attachment: fixed;
+    color: #333333;
+  }
+
+  /* Flashlight Effect */
+  .flashlight-card,
+  .mining-surface {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .flashlight-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: border-color 0.3s ease;
+  }
+
+  .flashlight-card::before,
+  .mining-surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(220px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 231, 180, 0.28),
+        rgba(255, 177, 76, 0.13) 35%,
+        rgba(0, 0, 0, 0.06) 58%,
+        transparent 75%);
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  .flashlight-card::after,
+  .mining-surface::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(550px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        transparent 0%,
+        rgba(0, 0, 0, 0.28) 45%,
+        rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 2;
+  }
+
+  .flashlight-card:hover::before,
+  .flashlight-card.is-lit::before,
+  .flashlight-card:hover::after,
+  .flashlight-card.is-lit::after,
+  .mining-surface:hover::before,
+  .mining-surface.is-lit::before,
+  .mining-surface:hover::after,
+  .mining-surface.is-lit::after {
+    opacity: 1;
+  }
+
+  .flashlight-card:hover {
+    border-color: rgba(0, 51, 102, 0.5);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Spinner */
+  .loader {
+    border-top-color: #f4f4f4 !important;
+    -webkit-animation: spinner 1.5s linear infinite;
+    animation: spinner 1.5s linear infinite;
+  }
+
+  @keyframes spinner {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Carousel Fade */
+  .carousel-fade {
+    transition: opacity 1s ease-in-out;
+    opacity: 1;
+  }
+
+  .carousel-hidden {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* View Transitions */
+  .fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Staggered Animation for Cards */
+  .card-anim {
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  /* Search Highlight */
+  mark {
+    background-color: #fef08a;
+    /* yellow-200 */
+    color: #1a1a1a;
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+
+  .group-title-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.1;
+    max-height: 2.2em;
+  }
+
+  #modalDescription .modal-html-content> :first-child {
+    margin-top: 0 !important;
+  }
+
+  #modalDescription .modal-html-content> :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .cta-click {
+    position: relative;
+    overflow: hidden;
+    animation: ctaPulse 1.8s ease-in-out infinite;
+  }
+
+  .cta-click::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg);
+    animation: ctaShine 2.2s ease-in-out infinite;
+  }
+
+  @keyframes ctaPulse {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-1px);
+    }
+  }
+
+  @keyframes ctaShine {
+    0% {
+      left: -120%;
+    }
+
+    60%,
+    100% {
+      left: 140%;
+    }
+  }
+
+  @keyframes searchPulse {
+    0% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+
+    100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+
+  .anima-search {
+    animation: searchPulse 2s infinite;
+  }
+</style>
