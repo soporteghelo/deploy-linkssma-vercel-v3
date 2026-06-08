@@ -13,8 +13,9 @@ if (fs.existsSync(envFile)) {
   });
 }
 
-const PORT = 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3000;
 const ROOT = __dirname;
+const PUBLIC = path.join(__dirname, 'public');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -79,10 +80,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // --- Archivos estáticos ---
-  let filePath = path.join(ROOT, pathname === '/' ? 'index.html' : pathname);
-  // Si no existe, intentar con index.html (SPA fallback)
-  if (!fs.existsSync(filePath)) filePath = path.join(ROOT, 'index.html');
+  // --- Archivos estáticos desde public/ ---
+  let filePath = path.join(PUBLIC, pathname === '/' ? 'index.html' : pathname);
+  // Si no existe en public/, intentar en root (compat)
+  if (!fs.existsSync(filePath)) filePath = path.join(ROOT, pathname === '/' ? 'index.html' : pathname);
+  // SPA fallback
+  if (!fs.existsSync(filePath)) filePath = path.join(PUBLIC, 'index.html');
 
   const ext = path.extname(filePath);
   const mimeType = MIME[ext] || 'application/octet-stream';
