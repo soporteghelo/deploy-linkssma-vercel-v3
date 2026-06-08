@@ -1457,8 +1457,8 @@ function renderDirectos(items) {
       ? '<span class="absolute inset-0 rounded-full bg-red-400 animate-ping" style="opacity:0.65;"></span>'
       : '';
     var circleShadow = esIntervenciones
-      ? 'box-sizing:border-box; border:3px solid #fff; box-shadow:0 0 0 3px #fff, 0 0 14px 4px #ef4444;'
-      : 'box-sizing:border-box; border:3px solid #fff; box-shadow:0 0 0 3px #fff;';
+      ? 'box-sizing:border-box; border:1.5px solid #fff; box-shadow:0 0 0 1.5px #fff, 0 0 14px 4px #ef4444;'
+      : 'box-sizing:border-box; border:1.5px solid #fff; box-shadow:0 0 0 1.5px #fff;';
     return (
       '<button onclick="openDirectoModal(' + i + ')" style="' + btnStyle + '" class="flex flex-col items-center">' +
       '<div class="relative" style="width:42px; height:42px;">' +
@@ -1475,7 +1475,7 @@ function renderDirectos(items) {
   var feedbackBtn = (
     '<button onclick="openFeedbackModal()" style="' + btnStyle + '" class="flex flex-col items-center">' +
     '<div class="relative" style="width:42px; height:42px;">' +
-    '<div class="relative w-full h-full rounded-full bg-[#2b3a62] hover:bg-blue-800 active:scale-95 flex items-center justify-center transition-all duration-200" style="box-sizing:border-box; border:3px solid #fff; box-shadow:0 0 0 3px #fff;">' +
+    '<div class="relative w-full h-full rounded-full bg-[#2b3a62] hover:bg-blue-800 active:scale-95 flex items-center justify-center transition-all duration-200" style="box-sizing:border-box; border:1.5px solid #fff; box-shadow:0 0 0 1.5px #fff;">' +
     '<span class="material-icons text-white" style="font-size:20px;">lightbulb</span>' +
     '</div></div>' +
     '<span class="text-white text-center font-semibold leading-tight" style="' + labelStyle + '">Buzón Mejoras</span>' +
