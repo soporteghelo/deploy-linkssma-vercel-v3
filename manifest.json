@@ -1,6 +1,6 @@
 {
-  "name": "AESA - Portal de Gestión Documental",
-  "short_name": "Portal AESA",
+  "name": "Gestión documental",
+  "short_name": "Gestión documental",
   "description": "Portal de Gestión Documental AESA",
   "start_url": "/",
   "display": "standalone",

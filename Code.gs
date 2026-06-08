@@ -1,7 +1,28 @@
 // Configuración Global del Spreadsheet
 var SPREADSHEET_ID = '1-Yi2nfl7wI_OORzTpdrMCMdjXvrYVPQ_aVaVdMTaGlM';
 
-function doGet() {
+function doGet(e) {
+  const action = e && e.parameter && e.parameter.action;
+
+  if (action === 'getData') {
+    const data = getActiveData();
+    return ContentService.createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'saveFeedback') {
+    const comentario = (e.parameter.comentario || '').trim();
+    const result = saveFeedback(comentario);
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'getDirectos') {
+    const data = getDirectosData();
+    return ContentService.createTextOutput(JSON.stringify(data))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   return HtmlService.createTemplateFromFile('Index')
     .evaluate()
     .setTitle('AESA - Portal de Gestión Documental')
@@ -124,6 +145,29 @@ function getActiveData() {
   } catch (e) {
     Logger.log(`[ERROR] Error CRÍTICO en getActiveData: ${e.toString()} \nStack: ${e.stack}`);
     throw e;
+  }
+}
+
+function getDirectosData() {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName('DIRECTOS');
+    if (!sheet) return [];
+    const values = sheet.getDataRange().getValues();
+    if (values.length < 2) return [];
+    values.shift(); // quitar encabezados: A=ID, B=Orden, C=Link, D=Titulo
+    return values
+      .filter(row => row[0] && row[2]) // solo filas con ID y Link
+      .map(row => ({
+        ID: String(row[0]),
+        ORDEN: Number(row[1]) || 0,
+        LINK: String(row[2]),
+        TITULO: String(row[3] || '')
+      }))
+      .sort((a, b) => a.ORDEN - b.ORDEN);
+  } catch(e) {
+    Logger.log('[ERROR] getDirectosData: ' + e.toString());
+    return [];
   }
 }
 
