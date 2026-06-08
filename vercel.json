@@ -1,7 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "echo skip",
-  "outputDirectory": ".",
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "api/**/*.js", "use": "@vercel/node" }
+  ],
   "functions": {
     "api/*.js": {
       "memory": 512,
