@@ -1,8 +1,8 @@
 {
   "version": 2,
+  "outputDirectory": ".",
   "functions": {
     "api/*.js": {
-      "memory": 512,
       "maxDuration": 15
     }
   },
