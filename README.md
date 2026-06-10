@@ -35,6 +35,15 @@ npm run dev
 
 Abre `http://localhost:3000` para ver la app en desarrollo.
 
+### Cambiar el puerto
+- Opcional: define `PORT` en `.env.local` o en la terminal.
+- Ejemplo en PowerShell (Windows):
+  ```powershell
+  $env:PORT = 4000
+  npm run dev
+  ```
+- Luego abre `http://localhost:4000` o `http://192.168.1.14:4000`.
+
 ## Despliegue en Vercel
 
 1. Conecta el repositorio a Vercel.
